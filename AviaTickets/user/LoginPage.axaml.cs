@@ -63,7 +63,7 @@ public partial class LoginPage : Window
         }
         catch (Exception f)
         {
-            //throw;  TODO handle exception
+            Console.WriteLine(f.Message);
         }
     }
 

@@ -29,7 +29,7 @@ public partial class EditTicketWindow : Window
         OstatokTextBox.Text = ticket.ostatok.ToString();
         DescriptionTextBox.Text = ticket.Description;
         
-        Console.WriteLine("Поля заполнены");
+        Console.WriteLine("The fields are filled in");
     }
 
     private async void OnSaveButtonClick(object? sender, RoutedEventArgs e)
@@ -47,7 +47,7 @@ public partial class EditTicketWindow : Window
                 string.IsNullOrWhiteSpace(OstatokTextBox.Text) ||
                 string.IsNullOrWhiteSpace(DescriptionTextBox.Text))
             {
-                var messageWindow = new MessageWindow("Заполни все поля, слышь");
+                var messageWindow = new MessageWindow("Заполните все поля");
                 await messageWindow.ShowDialog(this);
                 return;
             }

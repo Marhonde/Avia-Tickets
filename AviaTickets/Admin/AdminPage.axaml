@@ -37,6 +37,7 @@
                 <Button Content="Главная" Margin="0 5" Click="OnMainButtonClick"/>
                 <Button Content="Проданные билеты" Margin="0 5" Click="OnMyTicketButtonClick"/>
                 <Button Content="Добавить билет" Margin="0 5" Click="OnAddTicketButtonClick"/>
+                <Button Content="Аналитика" Margin="0 5" Click="OnExportButtonClick"/>
                 <Button Content="Выйти" Margin="0 5" Click="OnLogoutButtonClick"/>
             </StackPanel>
         </Border>
@@ -139,7 +140,7 @@
                                         StringFormat='Дата покупки: {0:dd.MM.yyyy HH.mm}'}"
                                                    FontSize="14"/>
                                         
-                                        <TextBlock Text="{Binding username, StringFormat='Купил {0}'}"
+                                        <TextBlock Text="{Binding Username, StringFormat='Купил {0}'}"
                                                    FontSize="14"/>
                                     </StackPanel>
                                 </Border>

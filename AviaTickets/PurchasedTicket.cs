@@ -16,10 +16,10 @@ public class PurchasedTicket
     [Column("purchased_date")]
     public DateTime PurchasedDate { get; set; }
     
-    public Ticket Ticket { get; set; }
+    public Ticket? Ticket { get; set; }
     
-    public User User { get; set; }
+    public User? User { get; set; }
     
     [NotMapped]
-    public string? username { get; set; }
+    public string? Username { get; set; }
 }

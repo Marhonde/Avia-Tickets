@@ -72,12 +72,9 @@ public partial class AdminPage : Window, INotifyPropertyChanged
         try
         {
             await using var db = new ApplicationDbContext();
-        
             var tickets = await db.Purchased_Tickets
-                .AsNoTracking()
                 .Include(t => t.Ticket)
                 .Include(t => t.User)
-                .Where(t => t.UserId == LoginPage.CurrentUser!.id)
                 .Select(t => new PurchasedTicket
                 {
                     Id = t.Id,
@@ -85,11 +82,11 @@ public partial class AdminPage : Window, INotifyPropertyChanged
                     Ticket = t.Ticket,
                     UserId = t.UserId,
                     PurchasedDate = t.PurchasedDate,
-                    username = t.User.username
+                    Username = t.User!.username
                 })
                 .ToListAsync();
-        
-            Console.WriteLine($"Загружено купленных билетов: {tickets.Count}");
+            
+            Console.WriteLine($"Downloaded purchased tickets: {tickets.Count}");
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 PurchasedTickets = new ObservableCollection<PurchasedTicket>(tickets);
@@ -144,7 +141,7 @@ public partial class AdminPage : Window, INotifyPropertyChanged
         {
             if (sender is not Button { DataContext: Ticket selectedTicket })
             {
-                Console.WriteLine("Не удалось получить выбранный билет.");
+                Console.WriteLine("Couldn't get the selected ticket.");
                 return;
             }
         
@@ -167,25 +164,25 @@ public partial class AdminPage : Window, INotifyPropertyChanged
             if (sender is not Button { DataContext: Ticket selectedTicket })
                 return;
 
-            await using (var db = new ApplicationDbContext())
-            {
-                var ticket = await db.Tickets.FindAsync(selectedTicket.Id);
-
-                if (ticket != null)
-                {
-                    var relatedPurchases = db.Purchased_Tickets.Where(t => t.TicketId == ticket.Id);
-                    db.Purchased_Tickets.Remove(relatedPurchases.FirstOrDefault());
-                    
-                    db.Tickets.Remove(selectedTicket);
-                    await db.SaveChangesAsync();
-                }
-            }
+            await using var db = new ApplicationDbContext();
             
+            var relatedPurchases = db.Purchased_Tickets.Where(t => t.TicketId == selectedTicket.Id);
+            
+            db.Purchased_Tickets.RemoveRange(relatedPurchases);
+            db.Tickets.Remove(selectedTicket);
+            
+            await db.SaveChangesAsync();
             LoadTickets();
         }
         catch (Exception f)
         {
-            Console.WriteLine("2: " + f.Message);
+            Console.WriteLine("2: " + f);
         }
+    }
+
+    private void OnExportButtonClick(object? sender, RoutedEventArgs e)
+    {
+        var ew = new ExportWindow();
+        ew.ShowDialog(this);
     }
 }

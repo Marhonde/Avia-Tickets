@@ -10,5 +10,7 @@ public class User
     
     public string? email { get; set; }
     
+    public string? photo { get; set; }
+    
     public int role { get; set; }
 }

@@ -13,14 +13,24 @@ namespace AviaTickets
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            DotNetEnv.Env.Load();
-            
-            var server = Environment.GetEnvironmentVariable("SERVER");
-            var db = Environment.GetEnvironmentVariable("DB");
-            var user = Environment.GetEnvironmentVariable("USER");
-            var password = Environment.GetEnvironmentVariable("PASSWORD");
-            
-            optionsBuilder.UseMySQL($"server={server};database={db};user={user};password={password}");
+            try
+            {
+                DotNetEnv.Env.Load();
+                
+                var server = Environment.GetEnvironmentVariable("DB_SERVER");
+                var db = Environment.GetEnvironmentVariable("DB_DATABASE");
+                var user = Environment.GetEnvironmentVariable("DB_USERNAME");
+                var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
+                
+                optionsBuilder
+                    .EnableSensitiveDataLogging()
+                    .UseMySQL($"server={server};database={db};user={user};password={password}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

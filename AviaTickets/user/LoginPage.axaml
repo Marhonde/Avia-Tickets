@@ -5,6 +5,8 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="350"
              x:Class="AviaTickets.LoginPage"
              Title="Авторизация"
+             Width="400"
+             Height="350"
              FontFamily="Arial"
              WindowStartupLocation="CenterScreen">
     <Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*,*">

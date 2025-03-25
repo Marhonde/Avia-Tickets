@@ -6,6 +6,8 @@
         mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
         x:Class="AviaTickets.MainWindow"
         Title="AviaTickets"
+        Width="900" Height="500"
+        WindowStartupLocation="CenterScreen"
         x:DataType="aviaTickets:MainWindow">
     <Window.Styles>
         <Style Selector="Window Button">
@@ -36,7 +38,7 @@
                         Margin="0 5"
                         Click="OnMyTicketsButtonClick" />
     
-                <Button Content="Настройка"
+                <Button Content="Настройки"
                         Margin="0 5"
                         Click="OnUserSettingsButtonClick" />
                 
@@ -49,6 +51,35 @@
         <ContentControl x:Name="MainContent">
             <ScrollViewer>
                 <StackPanel>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="10"
+                                Spacing="10"
+                                IsVisible="{Binding IsFilterVisible}">
+                        <TextBox BorderBrush="#fff"
+                                 x:Name="SearchTextBox"
+                                 Watermark="Поиск по названию"
+                                 Width="200"
+                                 TextChanged="OnSearchTextChanged"/>
+                        
+                        <Border BorderBrush="#fff"
+                                BorderThickness="2"
+                                CornerRadius="3"
+                                Padding="10">
+                            <TextBlock x:Name="FilterDateTextBlock"
+                                       Text="Выберите дату"
+                                       VerticalAlignment="Center"
+                                       Width="200"
+                                       Tapped="OnFilterDateTextBlockTapped">
+                                <FlyoutBase.AttachedFlyout>
+                                    <Flyout Placement="Bottom">
+                                        <DatePicker x:Name="FilterDatePicker" SelectedDateChanged="OnFilterDateChanged"/>
+                                    </Flyout>
+                                </FlyoutBase.AttachedFlyout>
+                            </TextBlock>
+                        </Border>
+                        
+                        <Button Content="Сбросить фильтры" Click="OnResetFilterClick"></Button>
+                    </StackPanel>
                     <ItemsControl ItemsSource="{Binding Ticket}"
                                   x:Name="TicketsList">
                         <ItemsControl.ItemTemplate>
@@ -118,17 +149,17 @@
                                         Padding="10"
                                         CornerRadius="5">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Ticket.Title}"
+                                        <TextBlock Text="{Binding !Ticket.Title}"
                                                    FontSize="16"
                                                    FontWeight="Bold"/>
                                         
-                                        <TextBlock Text="{Binding Ticket.City_From}"
+                                        <TextBlock Text="{Binding !Ticket.City_From}"
                                                    FontSize="14"/>
                                         
-                                        <TextBlock Text="{Binding Ticket.City_To}"
+                                        <TextBlock Text="{Binding !Ticket.City_To}"
                                                    FontSize="14"/>
                                         
-                                        <TextBlock Text="{Binding Ticket.Date_Ulet,
+                                        <TextBlock Text="{Binding !Ticket.Date_Ulet,
                                         StringFormat='Дата прилета: {0:dd.MM.yyyy HH.mm}'}"
                                                    FontSize="14"/>
                                         

@@ -1,8 +1,11 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +30,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 Ticket = new ObservableCollection<Ticket>(ticketsFromDb);
+                FilteredTickets = new ObservableCollection<Ticket>(ticketsFromDb);
             });
         }
         catch (Exception e)
@@ -94,6 +98,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         TicketsList.IsVisible = true;
         PurchasedTicketsList.IsVisible = false;
+        IsFilterVisible = true;
+        UserSettingsPanel.IsVisible = false;
     }
     
     private void OnMyTicketsButtonClick(object? sender, RoutedEventArgs e)
@@ -101,8 +107,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         // Переключаем видимость списков
         TicketsList.IsVisible = false;
         PurchasedTicketsList.IsVisible = true;
+        UserSettingsPanel.IsVisible = false;
 
         LoadPurchasedTickets();
+        IsFilterVisible = false;
     }
     
     private void OnLogoutButtonClick(object? sender, RoutedEventArgs e)
@@ -159,6 +167,33 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             Console.WriteLine(f.Message);
         }
     }
+
+    private ObservableCollection<Ticket> _filteredTickets = [];
+
+    public ObservableCollection<Ticket> FilteredTickets
+    {
+        get => _filteredTickets;
+        set
+        {
+            _filteredTickets = value;
+            OnPropertyChanged(nameof(FilteredTickets));
+        }
+    }
+    
+    private bool _isFilterVisible = true;
+
+    public bool IsFilterVisible
+    {
+        get => _isFilterVisible;
+        set
+        {
+            if (_isFilterVisible == value) 
+                return;
+            
+            _isFilterVisible = value;
+            OnPropertyChanged(nameof(IsFilterVisible));
+        }
+    }
     
     private void OnUserSettingsButtonClick(object? sender, RoutedEventArgs e)
     {
@@ -166,20 +201,185 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         PurchasedTicketsList.IsVisible = false;
 
         UserSettingsPanel.IsVisible = true;
-        // isFilterVisible = false;
+        IsFilterVisible = false;
         
         UsernameTextBox.Text = LoginPage.CurrentUser!.username;
         UserEmailTextBox.Text = LoginPage.CurrentUser.email;
         UserPasswordTextBox.Text = LoginPage.CurrentUser.password;
+
+        if (!string.IsNullOrEmpty(LoginPage.CurrentUser.photo))
+        {
+            var projectRoot = Directory.GetParent(AppContext.BaseDirectory)!.Parent!.Parent!.Parent!.FullName;
+            var absolutePath = Path.Combine(projectRoot, LoginPage.CurrentUser.photo);
+            
+            UpdateUserPhoto(absolutePath);
+        }
+        else
+        {
+            UserPhotoImage.Source = null;
+        }
     }
 
-    private void OnUploadPhotoButtonClick(object? sender, RoutedEventArgs e)
+    [Obsolete("Obsolete")]
+    private async void OnUploadPhotoButtonClick(object? sender, RoutedEventArgs e)
     {
+        try
+        {
+            var fileDialog = new OpenFileDialog();
+            fileDialog.Filters.Add(new FileDialogFilter { Name = "Images", Extensions = { "png", "jpg", "jpeg" } });
+            fileDialog.AllowMultiple = false;
+
+            var result = await fileDialog.ShowAsync(this);
+            if (result is not { Length: > 0 })
+                return;
         
+            var filePath = result[0];
+            
+            var projectRoot = Directory.GetParent(AppContext.BaseDirectory)!.Parent!.Parent!.Parent!.FullName;
+            var photosDirectory = Path.Combine(projectRoot, "PhotoUser");
+            Console.WriteLine($"Directory for photos: {photosDirectory}");
+
+            if (!Directory.Exists(photosDirectory))
+            {
+                Directory.CreateDirectory(photosDirectory);
+                Console.WriteLine($"Directory created: {photosDirectory}");
+            }
+            else
+            {
+                Console.WriteLine($"Directory already exists: {photosDirectory}");
+            }
+            
+            var fileName = Guid.NewGuid() + Path.GetExtension(filePath);
+            var destinationPath = Path.Combine(photosDirectory, fileName);
+
+            try
+            {
+                File.Copy(filePath, destinationPath, true);
+                Console.WriteLine($"Error when copying a file: {destinationPath}");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+            
+            var relativePath = Path.Combine("PhotoUser", fileName);
+            
+            await using var db = new ApplicationDbContext();
+            
+            var user = db.Users.FirstOrDefault(u => u.username == LoginPage.CurrentUser!.username);
+            if (user == null)
+                return;
+        
+            user.photo = relativePath;
+            db.Users.Update(user);
+                
+            await db.SaveChangesAsync();
+                
+            LoginPage.CurrentUser!.photo = relativePath;
+
+            var mw = new MessageWindow("Фотография успешно добавлена!");
+            await mw.ShowDialog(this);
+            UpdateUserPhoto(destinationPath);
+        }
+        catch (Exception f)
+        {
+            Console.WriteLine(f.Message);
+        }
+    }
+
+    private void UpdateUserPhoto(string photoPath)
+    {
+        if (File.Exists(photoPath))
+        {
+            var bitmap = new Avalonia.Media.Imaging.Bitmap(photoPath);
+            UserPhotoImage.Source = bitmap;
+        }
+        else
+        {
+            UserPhotoImage.Source = null;
+            Console.WriteLine($"File not found: {photoPath}");
+        }
     }
     
-    private void OnSaveUserSettingsButtonClick(object? sender, RoutedEventArgs e)
+    private async void OnSaveUserSettingsButtonClick(object? sender, RoutedEventArgs e)
     {
+        try
+        {
+            await using var db = new ApplicationDbContext();
+            
+            var user = await db.Users.FirstOrDefaultAsync(u => u.id == LoginPage.CurrentUser!.id);
+            if (user == null)
+                return;
+            
+            if (UsernameTextBox.Text != null)
+                user.username = UsernameTextBox.Text;
+                
+            if (UserEmailTextBox.Text != null)
+                user.email = UserEmailTextBox.Text;
+                
+            if (UserPasswordTextBox.Text != null)
+                user.password = UserPasswordTextBox.Text;
+                
+            db.Users.Update(user);
+            await db.SaveChangesAsync();
+                
+            LoginPage.CurrentUser!.username = user.username;
+            LoginPage.CurrentUser.email = user.email;
+            LoginPage.CurrentUser.password = user.password;
+
+            var mw = new MessageWindow("Изменения успешно сохранены!");
+            await mw.ShowDialog(this);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+            
+            var errorMw = new MessageWindow("Произошла ошибка при сохранении изменений");
+            await errorMw.ShowDialog(this);
+        }
+    }
+
+    private void OnFilterDateTextBlockTapped(object? sender, TappedEventArgs e)
+    {
+        if (sender is TextBlock textBlock)
+            FlyoutBase.ShowAttachedFlyout(textBlock);
+    }
+
+    private void OnFilterDateChanged(object? sender, DatePickerSelectedValueChangedEventArgs e)
+    {
+        FilterDateTextBlock.Text = FilterDatePicker.SelectedDate.HasValue
+            ? FilterDatePicker.SelectedDate.Value.ToString("dd.MM.yyyy") : "Выбирите дату";
+
+        ApplyFilters();
+    }
+
+    private void OnResetFilterClick(object? sender, RoutedEventArgs e)
+    {
+        SearchTextBox.Text = string.Empty;
+        FilterDatePicker.SelectedDate = null;
+        FilterDateTextBlock.Text = "Выберите дату";
+        ApplyFilters();
+    }
+    
+    private void OnSearchTextChanged(object? sender, TextChangedEventArgs e)
+        => ApplyFilters();
+
+    private void ApplyFilters()
+    {
+        var filtered = _ticket.AsEnumerable();
+
+        // фильтр по названию
+        if (!string.IsNullOrWhiteSpace(SearchTextBox.Text))
+        {
+            filtered = filtered.Where(t => t.Title.Contains(SearchTextBox.Text, StringComparison.OrdinalIgnoreCase));
+        }
         
+        // фильтр по дате вылета
+        if (FilterDatePicker.SelectedDate.HasValue)
+        {
+            filtered = filtered.Where(t => t.Date_Ulet.Date == FilterDatePicker.SelectedDate.Value.Date);
+        }
+        
+        FilteredTickets = new ObservableCollection<Ticket>(filtered);
     }
 }
