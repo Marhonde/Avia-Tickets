@@ -1,0 +1,198 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:aviaTickets="clr-namespace:AviaTickets"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
+        x:Class="AviaTickets.MainWindow"
+        Title="AviaTickets"
+        x:DataType="aviaTickets:MainWindow">
+    <Window.Styles>
+        <Style Selector="Window Button">
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </Window.Styles>
+    
+    <DockPanel>
+        <Border DockPanel.Dock="Top"
+                Background="#0078D7"
+                Padding="10">
+            <TextBlock Text="Авиасейлс"
+                       Foreground="White"
+                       FontSize="20"
+                       HorizontalAlignment="Center"/>
+        </Border>
+        
+        <Border DockPanel.Dock="Left"
+                Background="#f5f5f5"
+                Width="200">
+            <StackPanel Margin="10">
+                <Button Content="Главная"
+                        Margin="0 5"
+                        Click="OnMainButtonClick" />
+    
+                <Button Content="Мои билеты"
+                        Margin="0 5"
+                        Click="OnMyTicketsButtonClick" />
+    
+                <Button Content="Настройка"
+                        Margin="0 5"
+                        Click="OnUserSettingsButtonClick" />
+                
+                <Button Content="Выйти"
+                        Margin="0 5"
+                        Click="OnLogoutButtonClick" />
+            </StackPanel>
+        </Border>
+        
+        <ContentControl x:Name="MainContent">
+            <ScrollViewer>
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding Ticket}"
+                                  x:Name="TicketsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#f0f0f0"
+                                        Margin="10"
+                                        Padding="10"
+                                        CornerRadius="5">
+                                    <Expander Width="650">
+                                        <Expander.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}"
+                                                           FontSize="16"
+                                                           FontWeight="Bold"/>
+                                                
+                                                <TextBlock Text="{Binding City_From}"
+                                                           FontSize="14"/>
+                                                
+                                                <TextBlock Text="{Binding City_To}"
+                                                           FontSize="14"/>
+                                                
+                                                <TextBlock Text="{Binding Date_Ulet,
+                                                 StringFormat='Дата вылета: {0:dd.MM.yyyy HH.mm}'}"
+                                                           FontSize="14"/>
+                                                
+                                                <TextBlock Text="{Binding ostatok,
+                                                 StringFormat='Остаток билетов: {0}'}"
+                                                           FontSize="14"/>
+                                            </StackPanel>
+                                        </Expander.Header>
+                                        
+                                        <StackPanel Margin="10">
+                                            <TextBlock Text="{Binding Description}"
+                                                       FontSize="14"/>
+                                            
+                                            <TextBlock Text="{Binding Date_Prilet,
+                                                 StringFormat='Дата прилета: {0:dd.MM.yyyy HH.mm}'}"
+                                                       FontSize="14"/>
+                                            
+                                            <TextBlock Text="{Binding Time_Fly,
+                                                 StringFormat='Длительность полета: {0:hh\\:mm}}'}"
+                                                       FontSize="14"/>
+                                            
+                                            <Button Content="Купить билет"
+                                                    Click="OnBuyTicketButtonClick"
+                                                    Margin="0 10 0 0"/>
+                                            
+                                            <TextBlock Text="Билетов нет в наличии."
+                                                       FontSize="14"
+                                                       Foreground="Red"
+                                                       IsVisible="{Binding ostatok,
+                                                        Converter={x:Static aviaTickets:IntToVisibilityConverter.Instance}}"/>
+                                        </StackPanel>
+                                    </Expander>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- список купленных билетов -->
+                    <ItemsControl ItemsSource="{Binding PurchasedTickets}"
+                                  x:Name="PurchasedTicketsList" IsVisible="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="Gray"
+                                        Margin="10"
+                                        Padding="10"
+                                        CornerRadius="5">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Ticket.Title}"
+                                                   FontSize="16"
+                                                   FontWeight="Bold"/>
+                                        
+                                        <TextBlock Text="{Binding Ticket.City_From}"
+                                                   FontSize="14"/>
+                                        
+                                        <TextBlock Text="{Binding Ticket.City_To}"
+                                                   FontSize="14"/>
+                                        
+                                        <TextBlock Text="{Binding Ticket.Date_Ulet,
+                                        StringFormat='Дата прилета: {0:dd.MM.yyyy HH.mm}'}"
+                                                   FontSize="14"/>
+                                        
+                                        <TextBlock Text="{Binding PurchasedDate,
+                                        StringFormat='Дата покупки: {0:dd.MM.yyyy HH.mm}'}"
+                                                   FontSize="14"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <!-- Настройки пользователя -->
+                    <StackPanel x:Name="UserSettingsPanel"
+                                IsVisible="False"
+                                Margin="10">
+                        <TextBlock Text="Настройки пользователя"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0 0 0 10"/>
+                        
+                        <Image x:Name="UserPhotoImage"
+                               Width="100"
+                               Height="100"
+                               Margin="0 10"/>
+                        
+                        <!-- Поле для изменения имени -->
+                        <StackPanel Orientation="Horizontal" Margin="0 5">
+                            <TextBlock Text="Имя:" Width="100" VerticalAlignment="Center"/>
+                            <TextBox x:Name="UsernameTextBox" Width="200"/>
+                        </StackPanel>
+                        
+                        <!-- Поле для изменения почты -->
+                        <StackPanel Orientation="Horizontal" Margin="0 5">
+                            <TextBlock Text="Почта:" Width="100" VerticalAlignment="Center"/>
+                            <TextBox x:Name="UserEmailTextBox" Width="200"/>
+                        </StackPanel>
+                        
+                        <!-- Поле для изменения пароля -->
+                        <StackPanel Orientation="Horizontal" Margin="0 5">
+                            <TextBlock Text="Пароль:" Width="100" VerticalAlignment="Center"/>
+                            <TextBox x:Name="UserPasswordTextBox" Width="200"/>
+                        </StackPanel>
+                        
+                        <!-- Загрузка фотографии -->
+                        <Button Content="Загрузить фотографию"
+                                Margin="0 10"
+                                Click="OnUploadPhotoButtonClick"/>
+                        
+                        <!-- save button -->
+                        <Button Content="Сохранить изменения"
+                                Margin="0 10"
+                                Click="OnSaveUserSettingsButtonClick"/>
+                    </StackPanel>
+                    
+                    <TextBlock Text="У вас нет купленных билетов."
+                               FontSize="16"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="20"
+                               IsVisible="{Binding PurchasedTickets.Count,
+                               Converter={x:Static aviaTickets:IntToVisibilityConverter.Instance}}"/>
+                </StackPanel>
+            </ScrollViewer>
+        </ContentControl>
+    </DockPanel>
+</Window>

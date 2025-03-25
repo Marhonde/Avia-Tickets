@@ -1,0 +1,73 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="350"
+             x:Class="AviaTickets.RegisterPage"
+             Title="Регистрация"
+             FontFamily="Arial"
+             WindowStartupLocation="CenterScreen">
+    <Grid Margin="20"
+          RowDefinitions="Auto, Auto, Auto, Auto, Auto"
+          ColumnDefinitions="*, *">
+        <TextBlock Text="Регистрация" 
+                   Grid.ColumnSpan="2"
+                   HorizontalAlignment="Center"
+                   FontSize="20"
+                   Margin="0 0 0 20"/>
+        
+        <!-- login -->
+        <TextBlock Text="Логин:"
+                   Grid.Row="1"
+                   Grid.Column="0"
+                   Margin="10"
+                   VerticalAlignment="Center" />
+        
+        <TextBox x:Name="LoginTextBox"
+                 Grid.Row="1"
+                 Grid.Column="1"
+                 Width="200"
+                 HorizontalAlignment="Left"
+                 Margin="10"/>
+        
+        <!-- password -->
+        <TextBlock Text="Пароль:"
+                   Grid.Row="2"
+                   Grid.Column="0"
+                   Margin="10"
+                   VerticalAlignment="Center"/>
+        
+        <TextBox x:Name="PasswordTextBox"
+                 Grid.Row="2"
+                 Grid.Column="1"
+                 Margin="10"
+                 Width="200"
+                 HorizontalAlignment="Left"
+                 PasswordChar="*"/>
+        
+        <!-- email -->
+        <TextBlock Text="Почта:"
+                   Grid.Row="3"
+                   Grid.Column="0"
+                   Margin="10"
+                   VerticalAlignment="Center"/>
+        
+        <TextBox x:Name="EmailTextBox"
+                 Grid.Row="3"
+                 Grid.Column="1"
+                 Width="200"
+                 Margin="10"
+                 HorizontalAlignment="Left"/>
+        
+        <!-- buttons -->
+        <Button Content="Зарегистрироваться" 
+                Grid.Row="4"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Margin="10"
+                HorizontalAlignment="Stretch"
+                Click="OnRegisterButtonClick"/>
+        
+        <Button Content="Назад" Click="GoBack"/>
+    </Grid>
+</Window>

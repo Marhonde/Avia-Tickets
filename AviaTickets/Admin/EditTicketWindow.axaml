@@ -1,0 +1,54 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="AviaTickets.EditTicketWindow"
+        Title="Редактировать билет">
+    <StackPanel Margin="10">
+        <TextBox x:Name="TitleTextBox"
+                 Watermark="Название"
+                 Margin="0 5"/>
+        
+        <TextBox x:Name="CityFromTextBox"
+                 Watermark="Город отправления"
+                 Margin="0 5"/>
+        
+        <TextBox x:Name="CityToTextBox"
+                 Watermark="Город прибытия"
+                 Margin="0 5"/>
+        
+        
+        <TextBlock Text="Дата и время прилета"
+                   Margin="0 5"/>
+        
+        <StackPanel Orientation="Horizontal"
+                    Spacing="5">
+            <DatePicker x:Name="DateUletDatePicker"/>
+            <TimePicker x:Name="DateUletTimePicker"/>
+        </StackPanel>
+        
+        
+        <TextBlock Text="Дата и время прилета"
+                   Margin="0 5"/>
+        <StackPanel Orientation="Horizontal"
+                    Spacing="5">
+            <DatePicker x:Name="DatePriletDatePicker"/>
+            <TimePicker x:Name="DatePriletTimePicker"/>
+        </StackPanel>
+        
+        
+        <TextBlock Text="Длительность полета (hh:mm)"
+                   Margin="0 5"/>
+        <TimePicker x:Name="TimeFlyTextBox" Margin="0 5"/>
+        
+        <TextBox x:Name="OstatokTextBox"
+                 Watermark="Осталось билетов"
+                 Margin="0 5"/>
+        <TextBox x:Name="DescriptionTextBox"
+                 Watermark="Описание"
+                 Margin="0 5"/>
+        <Button Content="Сохранить" Margin="0 5"
+                Click="OnSaveButtonClick"/>
+    </StackPanel>
+</Window>
