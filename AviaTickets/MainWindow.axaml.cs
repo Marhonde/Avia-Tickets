@@ -348,7 +348,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void OnFilterDateChanged(object? sender, DatePickerSelectedValueChangedEventArgs e)
     {
         FilterDateTextBlock.Text = FilterDatePicker.SelectedDate.HasValue
-            ? FilterDatePicker.SelectedDate.Value.ToString("dd.MM.yyyy") : "Выбирите дату";
+            ? FilterDatePicker.SelectedDate.Value.ToString("dd.MM.yyyy") : "Выберите дату";
 
         ApplyFilters();
     }
@@ -362,23 +362,21 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
     
     private void OnSearchTextChanged(object? sender, TextChangedEventArgs e)
-        => ApplyFilters();
-
+    {
+        ApplyFilters();
+    }
+    
     private void ApplyFilters()
     {
         var filtered = _ticket.AsEnumerable();
 
         // фильтр по названию
         if (!string.IsNullOrWhiteSpace(SearchTextBox.Text))
-        {
             filtered = filtered.Where(t => t.Title.Contains(SearchTextBox.Text, StringComparison.OrdinalIgnoreCase));
-        }
         
         // фильтр по дате вылета
         if (FilterDatePicker.SelectedDate.HasValue)
-        {
             filtered = filtered.Where(t => t.Date_Ulet.Date == FilterDatePicker.SelectedDate.Value.Date);
-        }
         
         FilteredTickets = new ObservableCollection<Ticket>(filtered);
     }
